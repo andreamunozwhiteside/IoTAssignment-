@@ -1,0 +1,57 @@
+// ThingSpeak - Version: Latest 
+#include <ThingSpeak.h>
+
+const int moistureAO = 0;
+int AO = 0; 
+const int temperatureA1 = 0;
+int wat = 0; 
+int sensePin = A1;
+int sensorInput;
+float temp;
+#include "DHT.h"
+#include <WiFiNINA.h>
+  char ssid[] = "VM0133439";   
+  char pass[] = "m8tkNrtrqjgn";    
+  int status = WL_IDLE_STATUS;  
+  const unsigned long channel_id = 1707597;
+  const char write_api_key[] = "AB7XWPD8Q2649MHW";
+  WiFiClient client;
+
+void setup () {
+
+ Serial.begin(9600); // Send Arduino reading to IDE
+ Serial.println("Soil moisture sensor and Temperature sensor");
+ pinMode(moistureAO, INPUT);
+ Serial.println("Attempting to connect to WPA network...");
+ status = WiFi.begin(ssid, pass);
+ 
+ if (status != WL_CONNECTED) {
+   Serial.println("Couldn't get a wifi connection");
+ } else {
+   Serial.println("Connected to ");
+   Serial.println(ssid);
+   ThingSpeak.begin(client); 
+ }
+ //pinMode(temperatureA1, INPUT);
+}
+void loop () {
+ wat = analogRead( moistureAO );
+ float moist = wat;
+ Serial.print("Soil Moisture = "); // Show the resistance value of the sensor
+ // in the IDE
+ Serial.println(moist);
+ 
+ sensorInput = analogRead(A1);
+ temp = (float)sensorInput / 1024;
+ temp = temp * 5;
+ temp = temp - 0.5;
+ temp = temp * 100;
+ Serial.print("Current Temperature: ");
+ Serial.println(temp);
+ 
+ ThingSpeak.setField(1, moist);
+ ThingSpeak.setField(2, temp);
+ ThingSpeak.writeFields(1707597, "AB7XWPD8Q2649MHW");
+ 
+ delay (20000);
+}
